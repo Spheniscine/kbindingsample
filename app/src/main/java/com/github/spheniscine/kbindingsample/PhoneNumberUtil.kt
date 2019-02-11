@@ -12,7 +12,7 @@ private fun parse(mobileNumber : String, countryIso : String?) : Phonenumber.Pho
     catch(e : Exception) { null }
 
 /** returns the phone number in E164 format **/
-fun fullPhoneNumber(mobileNumber : String, countryIso : String?) : String? {
+fun e164PhoneNumber(mobileNumber : String, countryIso : String?) : String? {
     val parsed = parse(mobileNumber, countryIso) ?: return null
     return phoneUtil.format(parsed, PhoneNumberUtil.PhoneNumberFormat.E164)
 }
@@ -23,8 +23,8 @@ fun isValidPhoneNumber(mobileNumber: String, countryIso: String?) : Boolean {
 }
 
 /** split an E164 number into nationally significant number and country ISO **/
-fun getNationalNumberAndIso(fullPhoneNumber : String) : NationalNumberAndIso? {
-    val parsed = parse(fullPhoneNumber, "") ?: return null
+fun getNationalNumberAndIso(e164PhoneNumber : String) : NationalNumberAndIso? {
+    val parsed = parse(e164PhoneNumber, "") ?: return null
     val nationalNumber = parsed.nationalNumber.toString()
     val countryIso = phoneUtil.getRegionCodeForNumber(parsed)
     return NationalNumberAndIso(nationalNumber, countryIso)

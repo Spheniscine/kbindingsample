@@ -17,7 +17,7 @@ class TwoWayBindingExampleViewModel : BaseViewModel() {
             runCatching { isValidPhoneNumber(nationalNumber, countryIso) }.getOrDefault(false)
         }
     fun phoneDownClicked() {
-        e164Number = fullPhoneNumber(nationalNumber, countryIso) ?: return
+        e164Number = e164PhoneNumber(nationalNumber, countryIso) ?: return
     }
 
     val phoneUpEnabled by ::e164Number.kbmap { isValidPhoneNumber(it, null) }
