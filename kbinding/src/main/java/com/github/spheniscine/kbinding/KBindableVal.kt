@@ -16,21 +16,30 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
      */
     override val liveData: BoxedLiveData<T>
 
-    val value: T
+    val value: T get() {
+        val box = liveData.value
+        if(box != null) return box.value
+        else throw UninitializedPropertyAccessException()
+    }
 
     // Needed to allow Kotlin to use this as a property delegate
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T
+    operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
 
-    val initialized: Boolean
+    val initialized get() = liveData.value != null
 
     /**
      * The equivalent of Transformations.map for liveData, this takes any KBindableVal and
      * returns a new KBindableVal whose value depends on the original's value, and
      * modified by [transform]
      */
-    fun <N> map(transform: (T) -> N) : KBindableVal<N>
+    fun <N> map(transform: (T) -> N): KBindableVal<N> =
+        KBindableVal.wrapBoxed(
+            Transformations.map(this.liveData) {
+                Box(transform(value))
+            }.apply { kick() }
+        )
 
-    fun toStringVal() : KBindableVal<String>
+    fun toStringVal() = map { it.toString() }
 
     companion object {
         /**
@@ -56,26 +65,8 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
 
 abstract class KBindableValImpl<T> : KBindableVal<T>, KBindableImpl<Box<T>, (T) -> Unit>() {
 
-    override val initialized get() = liveData.value != null
-
-    override val value: T get() {
-        val box = liveData.value
-        if(box != null) return box.value
-        else throw UninitializedPropertyAccessException()
-    }
-
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T = value
-
     override fun makeObserver(func: (T) -> Unit): Observer<Any?> = Observer { func(value) }
 
-    override fun <N> map(transform: (T) -> N): KBindableVal<N> =
-        KBindableVal.wrapBoxed(
-            Transformations.map(this.liveData) {
-                Box(transform(value))
-            }.apply { kick() }
-        )
-
-    override fun toStringVal(): KBindableVal<String> = map { it.toString() }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -95,7 +86,7 @@ fun <R, T:R> KBindableVal<T>.getOrDefault(default: R) =
  * Adds a setter to a KBindableVal, so that you can "upgrade" the result of e.g. [KBindableVal.map]
  * to delegate vars
  */
-fun <T> KBindableVal<T>.withSetter(setter: (T) -> Unit): KBindableVar<T> {
+inline fun <T> KBindableVal<T>.withSetter(crossinline setter: (T) -> Unit): KBindableVar<T> {
     val kbval = this
     return object : KBindableVar<T>, KBindableVal<T> by kbval {
         override var value
