@@ -6,13 +6,16 @@ import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.view.Gravity
 import androidx.core.view.marginTop
+import com.github.spheniscine.kbinding.bindingdefs.text2way
 import org.jetbrains.anko.*
+import org.koin.android.viewmodel.ext.viewModel
 
-class MainActivity : AppCompatActivity() {
+class TwoWayBindingExampleActivity : BaseActivity() {
+
+    private val vm: TwoWayBindingExampleViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_main)
 
         val SPACING = dip(8)
 
@@ -22,7 +25,9 @@ class MainActivity : AppCompatActivity() {
                 linearLayout {
                     topPadding = SPACING
                     gravity = Gravity.CENTER
-                    countryCodePicker()
+                    countryCodePicker {
+                        bind(iso2way, vm::countryIso)
+                    }
                     editText {
                         filters += DigitsKeyListener.getInstance()
                         inputType = InputType.TYPE_CLASS_PHONE
@@ -30,15 +35,22 @@ class MainActivity : AppCompatActivity() {
                         hint = "Phone number"
                         maxLines = 1
                         ems = 9
+                        bind(text2way, vm::nationalNumber)
                     }
                 }
 
                 linearLayout {
                     topPadding = SPACING
                     gravity = Gravity.CENTER
-                    button("↓")
+                    button("↓") {
+                        onClick = vm::phoneDownClicked
+                        bind(::setEnabled, vm::phoneDownEnabled)
+                    }
                     view().lparams(width = SPACING, height = 0)
-                    button("↑")
+                    button("↑") {
+                        onClick = vm::phoneUpClicked
+                        bind(::setEnabled, vm::phoneUpEnabled)
+                    }
                 }
 
                 linearLayout {
@@ -52,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                         hint = "Phone number (international)"
                         maxLines = 1
                         ems = 12
+                        bind(text2way, vm::internationalNumber)
                     }
                 }
             }

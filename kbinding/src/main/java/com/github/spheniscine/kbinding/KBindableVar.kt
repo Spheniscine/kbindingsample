@@ -9,10 +9,9 @@ import kotlin.reflect.jvm.isAccessible
 interface KBindableVar<T> : KBindableVal<T> {
     override var value: T
 
-    // Needed to allow Kotlin to use this as a property delegate
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T)
+    infix fun setIfNot(new: T) = ::value setIfNot new
 
-    infix fun setIfNot(new: T)
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) { this.value = value }
 
     companion object {
         /** pseudo-constructor factory method */
@@ -88,8 +87,6 @@ abstract class KBindableVarImpl<T> : KBindableVar<T>, KBindableValImpl<T>() {
         set(v) {
             liveData.value = Box(v)
         }
-
-    override fun setIfNot(new: T) { if(!initialized || value != new) value = new }
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) { this.value = value }
 }

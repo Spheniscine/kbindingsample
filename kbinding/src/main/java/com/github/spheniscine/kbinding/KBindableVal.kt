@@ -3,6 +3,7 @@ package com.github.spheniscine.kbinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -89,3 +90,16 @@ fun <R, T:R> KBindableVal<T>.getOrElse(onFailure: (Throwable) -> R)=
     ::value.getOrElse(onFailure)
 fun <R, T:R> KBindableVal<T>.getOrDefault(default: R) =
     ::value.getOrDefault(default)
+
+/**
+ * a function to add a setter to a KBindableVal, so that you can "extend" the result of
+ * e.g. [KBindableVal.map] to delegate vars
+ */
+fun <T> KBindableVal<T>.withSetter(setter: (T) -> Unit): KBindableVar<T> {
+    val kbval = this
+    return object : KBindableVar<T>, KBindableVal<T> by kbval {
+        override var value
+            get() = kbval.value
+            set(value) = setter(value)
+    }
+}
