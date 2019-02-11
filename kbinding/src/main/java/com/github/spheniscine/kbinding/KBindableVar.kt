@@ -27,54 +27,6 @@ interface KBindableVar<T> : KBindableVal<T> {
         operator fun <T> invoke(lateInitMarker: LATEINIT) : KBindableVar<T> =
             object: KBindableVarImpl<T>() {}
 
-        fun <T> vetoable(lateInitMarker: LATEINIT,
-                         beforeSet: (old: T?, intent: T) -> T = {_, intent -> intent },
-                         afterSet: (old: T?, intent: T, new: T) -> Unit): KBindableVar<T> =
-            object : KBindableVarImpl<T>() {
-                override var value get() = super.value
-                    set(intent) {
-                        val old = getOrNull()
-                        val new = beforeSet(old, intent)
-                        super.value = new
-                        afterSet(old, intent, new)
-                    }
-            }
-
-        /**
-         * "Vetoables" allow you to intercept any attempt to set the KBindableVar value; useful for
-         * two-way bindings.
-         *
-         * @param beforeSet accepts the current/"old" value (null if uninitialized), and the intended
-         * value. Return value should be what *should* be set. The default will just accept the
-         * intended value.
-         *
-         * @param afterSet accepts the old value, the intended value, and the new value actually
-         * set (the return value of [beforeSet]). Default will do nothing.
-         */
-        fun <T> vetoable(initialValue: T,
-                         beforeSet: (old: T?, intent: T) -> T = {_, intent -> intent },
-                         afterSet: (old: T?, intent: T, new: T) -> Unit = {_,_,_->}) =
-            object : KBindableVarImpl<T>() {
-                init { super.value = initialValue }
-                override var value get() = super.value
-                    set(intent) {
-                        val old = getOrNull()
-                        val new = beforeSet(old, intent)
-                        super.value = new
-                        afterSet(old, intent, new)
-                    }
-            }
-
-        fun <T> updater(lateInitMarker: LATEINIT, afterSet: () -> Unit) =
-            vetoable<T>(LATEINIT, afterSet = {_, _, _ -> afterSet()})
-
-        /**
-         * "Updaters" are simplified forms of vetoables that simply call a function after it
-         * is set.
-         */
-        fun <T> updater(initialValue: T, afterSet: () -> Unit) =
-            vetoable(initialValue, afterSet = {_, _, _ -> afterSet()})
-
     }
 }
 
