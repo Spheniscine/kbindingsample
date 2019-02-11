@@ -13,21 +13,15 @@ package com.github.spheniscine.kbinding
  * @param afterSet accepts the old value, the intended value, and the new value actually
  * set (the return value of [beforeSet]). Default will do nothing.
  */
-fun <T> KBindableVar<T>.vetoable(beforeSet: (old: T?, intent: T) -> T = {_, intent -> intent },
-                 afterSet: (old: T?, intent: T, new: T) -> Unit = {_,_,_->}) : KBindableVar<T> {
-    val original = this
-
-    return object : KBindableVar<T> by original {
-        override var value
-            get() = original.value
-            set(intent) {
-                val old = getOrNull()
-                val new = beforeSet(old, intent)
-                original.value = new
-                afterSet(old, intent, new)
-            }
-    }
-}
+fun <T> KBindableVar<T>.vetoable(
+    beforeSet: (old: T?, intent: T) -> T = {_, intent -> intent },
+    afterSet: (old: T?, intent: T, new: T) -> Unit = {_,_,_->}) =
+        withSetter { intent ->
+            val old = getOrNull()
+            val new = beforeSet(old, intent)
+            value = new
+            afterSet(old, intent, new)
+        }
 
 /**
  * "Updaters" are simplified forms of vetoables that simply call a function (typically a private data
