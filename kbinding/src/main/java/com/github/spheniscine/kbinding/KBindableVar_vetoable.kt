@@ -1,7 +1,7 @@
 package com.github.spheniscine.kbinding
 
 /**
- * Extends a given KBindableVar into a "vetoable".
+ * Changes a given KBindableVar into a "vetoable".
  *
  * "Vetoables" allow you to intercept any attempt to set the KBindableVar value; useful for
  * two-way bindings.
