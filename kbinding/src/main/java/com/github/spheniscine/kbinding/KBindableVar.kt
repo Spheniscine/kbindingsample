@@ -35,13 +35,13 @@ interface KBindableVar<T> : KBindableVal<T> {
         inline fun <T> retrofit(
             crossinline get: () -> T,
             crossinline set: (T) -> Unit,
-            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVar<T> =
-            KBindableVal.retrofit(get, attachListener).withSetter(set)
+            crossinline attachListener: (onChange: () -> Unit) -> Unit
+        ): KBindableVar<T> = KBindableVal.retrofit(get, attachListener).withSetter(set)
 
         inline fun <T> retrofit(
             property: KMutableProperty0<T>,
-            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVar<T> =
-            KBindableVar.retrofit(property.getter, property.setter, attachListener)
+            crossinline attachListener: (onChange: () -> Unit) -> Unit
+        ): KBindableVar<T> = KBindableVar.retrofit(property.getter, property.setter, attachListener)
 
     }
 }

@@ -68,22 +68,23 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
          */
         inline fun <T> retrofit(
             crossinline get: () -> T,
-            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVal<T> =
-                object : KBindableVarImpl<T>() {
-                    // update only triggers if get() doesn't throw an exception. This way you can safely use
-                    // lateinit or nullable variables (with !!) as the source.
-                    private val update: () -> Unit = { runCatching{ value = get() } }
+            crossinline attachListener: (onChange: () -> Unit) -> Unit
+        ): KBindableVal<T> =
+            object : KBindableVarImpl<T>() {
+                // update only triggers if get() doesn't throw an exception. This way you can safely use
+                // lateinit or nullable variables (with !!) as the source.
+                private val update: () -> Unit = { runCatching{ value = get() } }
 
-                    init {
-                        update()
-                        attachListener(update)
-                    }
+                init {
+                    update()
+                    attachListener(update)
                 }
+            }
 
         inline fun <T> retrofit(
             property: KProperty0<T>,
-            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVal<T> =
-                retrofit(property.getter, attachListener)
+            crossinline attachListener: (onChange: () -> Unit) -> Unit
+        ): KBindableVal<T> = retrofit(property.getter, attachListener)
     }
 }
 
