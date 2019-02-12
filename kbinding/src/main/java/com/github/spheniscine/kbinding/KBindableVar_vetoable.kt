@@ -15,7 +15,7 @@ package com.github.spheniscine.kbinding
  */
 inline fun <T> KBindableVar<T>.vetoable(
     crossinline beforeSet: (old: T?, intent: T) -> T = { _, intent -> intent },
-    crossinline afterSet: (old: T?, intent: T, new: T) -> Unit = { _, _, _->}) =
+    crossinline afterSet: (old: T?, intent: T, new: T) -> Unit = { _, _, _ -> }) =
     /** calls [KBindableVal.withSetter], essentially overriding the setter */
         withSetter { intent ->
             val old = getOrNull()
@@ -27,5 +27,5 @@ inline fun <T> KBindableVar<T>.vetoable(
 /**
  * "Updaters" are simplified forms of vetoables that simply calls a function after it is set.
  */
-inline fun <T> KBindableVar<T>.updater(initialValue: T, crossinline afterSet: (new: T) -> Unit) =
+inline fun <T> KBindableVar<T>.updater(crossinline afterSet: (new: T) -> Unit) =
     vetoable(afterSet = { _, _, new -> afterSet(new) })
