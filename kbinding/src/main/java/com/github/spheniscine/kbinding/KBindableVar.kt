@@ -55,8 +55,6 @@ abstract class KBindableVarImpl<T> : KBindableVar<T>, KBindableValImpl<T>() {
         set(v) {
             liveData.value = Box(v)
         }
-
-    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) { this.value = value }
 }
 
 @Suppress("UNCHECKED_CAST")

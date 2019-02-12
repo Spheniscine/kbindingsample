@@ -71,10 +71,10 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
             crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVal<T> =
             object : KBindableValImpl<T>() {
                 override val liveData = BoxedMutableLiveData<T>()
-                override val value: T get() = get()
-                override val initialized = true
 
-                private val update = { liveData.value = Box(value) }
+                // update only triggers if get() doesn't throw an exception. This way you can safely use
+                // lateinit or nullable variables (with !!) as the source.
+                private val update: () -> Unit = { runCatching{ liveData.value = Box(get()) } }
 
                 init {
                     update()
