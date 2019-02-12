@@ -57,6 +57,11 @@ interface KBindingClient : LifecycleOwner {
     /**
      * Does a two-way binding from a view to a data source. Note that order is important; if the two bindables
      * have different values on binding, [dataBindable] will take priority.
+     *
+     * Android and third-party view objects are unlikely to have a KBindableVar (or a property delegated to
+     * KBindableVar) handy to bind to. As such, extension properties need to be defined using [KBindableVar.retrofit].
+     * See the bindingdefs package for examples; the plan is to include every Android property useful for
+     * two-way-binding there.
      */
     fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KBindableVar<T>) {
         dataBindable.observe(viewBindable::setIfNot)
