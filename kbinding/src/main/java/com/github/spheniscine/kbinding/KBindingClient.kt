@@ -61,9 +61,6 @@ interface KBindingClient : LifecycleOwner {
     fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KBindableVar<T>) {
         dataBindable.observe(viewBindable::setIfNot)
         viewBindable.observe(dataBindable::setIfNot)
-
-        if(viewBindable.initialized && !dataBindable.initialized) dataBindable.value = viewBindable.value
-        else if (!viewBindable.initialized && dataBindable.initialized) viewBindable.value = dataBindable.value
     }
     fun <T> bind2(viewBindable: KMutableProperty0<T>, dataBindable: KBindableVar<T>) = bind2(viewBindable.kbvar, dataBindable)
     fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KMutableProperty0<T>) = bind2(viewBindable, dataBindable.kbvar)

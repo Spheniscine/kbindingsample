@@ -64,7 +64,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
         /**
          * Retrofits a value with a change listener into a KBindableVal.
          *
-         * Not to be confused with the Retrofit library; "retrofit" is used in its dictionary sense.
+         * Unrelated to the Retrofit library; "retrofit" is used in its dictionary sense.
          */
         inline fun <T> retrofit(
             crossinline get: () -> T,
@@ -74,8 +74,11 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
                 override val value: T get() = get()
                 override val initialized = true
 
+                private val update = { liveData.value = Box(value) }
+
                 init {
-                    attachListener { liveData.value = null }
+                    update()
+                    attachListener(update)
                 }
             }
 
