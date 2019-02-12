@@ -84,7 +84,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
 
         inline fun <T> retrofit(
             property: KProperty0<T>,
-            crossinline attachListener: (() -> Unit) -> Unit): KBindableVal<T> =
+            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVal<T> =
                 retrofit(property.getter, attachListener)
     }
 }
