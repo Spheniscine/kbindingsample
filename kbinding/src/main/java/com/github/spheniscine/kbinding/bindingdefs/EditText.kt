@@ -5,7 +5,7 @@ import android.text.TextWatcher
 import android.widget.EditText
 import com.github.spheniscine.kbinding.KBindableVar
 
-val EditText.text_kb get() = KBindableVar.retrofit(
+val EditText.text_kb get() = KBindableVar.adapt(
     get = { text.toString() },
     set = ::setText,
     attachListener = { update ->

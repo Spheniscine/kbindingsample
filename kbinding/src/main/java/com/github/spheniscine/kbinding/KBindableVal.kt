@@ -3,7 +3,6 @@ package com.github.spheniscine.kbinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
-import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -62,11 +61,9 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
                 }
 
         /**
-         * Retrofits a value with a change listener into a KBindableVal.
-         *
-         * Unrelated to the Retrofit framework; "retrofit" is used in its dictionary sense.
+         * Adapts a value from a non-KBindable API into a KBindableVal, so long as it has a change listener.
          */
-        inline fun <T> retrofit(
+        inline fun <T> adapt(
             crossinline get: () -> T,
             crossinline attachListener: (onChange: () -> Unit) -> Unit
         ): KBindableVal<T> =
@@ -81,10 +78,10 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
                 }
             }
 
-        inline fun <T> retrofit(
+        inline fun <T> adapt(
             property: KProperty0<T>,
             crossinline attachListener: (onChange: () -> Unit) -> Unit
-        ): KBindableVal<T> = retrofit(property.getter, attachListener)
+        ): KBindableVal<T> = adapt(property.getter, attachListener)
     }
 }
 
