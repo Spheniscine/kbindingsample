@@ -64,7 +64,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
         /**
          * Retrofits a value with a change listener into a KBindableVal.
          *
-         * Unrelated to the Retrofit library; "retrofit" is used in its dictionary sense.
+         * Unrelated to the Retrofit framework; "retrofit" is used in its dictionary sense.
          */
         inline fun <T> retrofit(
             crossinline get: () -> T,
