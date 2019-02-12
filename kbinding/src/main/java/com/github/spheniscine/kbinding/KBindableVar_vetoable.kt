@@ -25,8 +25,7 @@ inline fun <T> KBindableVar<T>.vetoable(
         }
 
 /**
- * "Updaters" are simplified forms of vetoables that simply call a function (typically a private data
- * integrity function in the view model) after it is set.
+ * "Updaters" are simplified forms of vetoables that simply calls a function after it is set.
  */
-inline fun <T> KBindableVar<T>.updater(initialValue: T, crossinline afterSet: () -> Unit) =
-    vetoable(afterSet = { _, _, _ -> afterSet() })
+inline fun <T> KBindableVar<T>.updater(initialValue: T, crossinline afterSet: (new: T) -> Unit) =
+    vetoable(afterSet = { _, _, new -> afterSet(new) })
