@@ -2,8 +2,6 @@ package com.github.spheniscine.kbinding
 
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty0
-import kotlin.reflect.jvm.isAccessible
 
 /** Interface for all KBindables where values can be read from and set to **/
 interface KBindableVar<T> : KBindableVal<T> {
@@ -26,6 +24,23 @@ interface KBindableVar<T> : KBindableVal<T> {
          */
         operator fun <T> invoke(lateInitMarker: LATEINIT) : KBindableVar<T> =
             object: KBindableVarImpl<T>() {}
+
+
+        /**
+         * Retrofits a mutable value with a change listener into a KBindableVar.
+         *
+         * Not to be confused with the Retrofit library; "retrofit" is used in its dictionary sense.
+         */
+        inline fun <T> retrofit(
+            crossinline get: () -> T,
+            crossinline set: (T) -> Unit,
+            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVar<T> =
+            KBindableVal.retrofit(get, attachListener).withSetter(set)
+
+        inline fun <T> retrofit(
+            property: KMutableProperty0<T>,
+            crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVar<T> =
+            KBindableVar.retrofit(property.getter, property.setter, attachListener)
 
     }
 }

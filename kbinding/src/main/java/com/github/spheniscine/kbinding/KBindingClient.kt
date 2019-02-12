@@ -1,7 +1,6 @@
 package com.github.spheniscine.kbinding
 
 import androidx.lifecycle.LifecycleOwner
-import com.github.spheniscine.kbinding.bindingdefs.K2WayBinder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty0
 
@@ -43,19 +42,6 @@ interface KBindingClient : LifecycleOwner {
     infix fun <F: Function<Unit>> KBindableEvent<*, F>.calls(func: F) = observe(func)
 
     /**
-     * Usage:
-     * vm::phoneNumber twoWay tvPhone.text2way
-     *
-     * Where "text2way" is an extension property for EditText that generates a K2WayBinder object.
-     *
-     * More to be defined soon.
-     */
-    infix fun <T> KBindableVar<T>.twoWay(binder: K2WayBinder<T>) =
-        binder.bind(this@KBindingClient, this)
-    infix fun <T> KMutableProperty0<T>.twoWay(binder: K2WayBinder<T>) =
-        binder.bind(this@KBindingClient, kbvar)
-
-    /**
      * binding functions that are in the reverse order of [sets]. Usage example:
      * bind(tvName::setText, vm::name)
      *
@@ -66,7 +52,20 @@ interface KBindingClient : LifecycleOwner {
     fun <T> bind(viewProp: KMutableProperty0<in T>, bindable: KProperty0<T>) = bindable sets viewProp
     fun <T> bind(viewFunc: (T) -> Unit, bindable: KBindableVal<T>) = bindable sets viewFunc
     fun <T> bind(viewProp: KMutableProperty0<in T>, bindable: KBindableVal<T>) = bindable sets viewProp
-    
-    fun <T> bind(view2WayBinder: K2WayBinder<T>, bindable: KMutableProperty0<T>) = bindable twoWay view2WayBinder
-    fun <T> bind(view2WayBinder: K2WayBinder<T>, bindable: KBindableVar<T>) = bindable twoWay view2WayBinder
+
+
+    /**
+     * Does a two-way binding from a view to a data source. Note that order is important; if the two bindables
+     * have different values on binding, [dataBindable] will take priority.
+     */
+    fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KBindableVar<T>) {
+        dataBindable.observe(viewBindable::setIfNot)
+        viewBindable.observe(dataBindable::setIfNot)
+
+        if(viewBindable.initialized && !dataBindable.initialized) dataBindable.value = viewBindable.value
+        else if (!viewBindable.initialized && dataBindable.initialized) viewBindable.value = dataBindable.value
+    }
+    fun <T> bind2(viewBindable: KMutableProperty0<T>, dataBindable: KBindableVar<T>) = bind2(viewBindable.kbvar, dataBindable)
+    fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KMutableProperty0<T>) = bind2(viewBindable, dataBindable.kbvar)
+    fun <T> bind2(viewBindable: KMutableProperty0<T>, dataBindable: KMutableProperty0<T>) = bind2(viewBindable.kbvar, dataBindable.kbvar)
 }
