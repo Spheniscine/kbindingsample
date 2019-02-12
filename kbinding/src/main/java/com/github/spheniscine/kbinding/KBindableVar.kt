@@ -58,8 +58,7 @@ abstract class KBindableVarImpl<T> : KBindableVar<T>, KBindableValImpl<T>() {
 @Suppress("UNCHECKED_CAST")
 val <T> KMutableProperty0<T>.kbvarOrNull get() = delegate as? KBindableVar<T>
 val <T> KMutableProperty0<T>.kbvar get() =
-    try { kbvarOrNull!! }
-    catch(e: Exception) { throw KBindingException("Property $name not delegated to an instance of KBindableVar.") }
+    kbvarOrNull ?: throw KBindingException("Property $name not delegated to an instance of KBindableVar.")
 
 /**
  * object marker for constructors or pseudo-constructors, to indicate late initialization of

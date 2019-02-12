@@ -94,8 +94,7 @@ abstract class KBindableValImpl<T> : KBindableVal<T>, KBindableImpl<Box<T>, (T) 
 @Suppress("UNCHECKED_CAST")
 val <T> KProperty0<T>.kbvalOrNull get() = delegate as? KBindableVal<T>
 val <T> KProperty0<T>.kbval get() =
-    try { kbvalOrNull!! }
-    catch(e: Exception) { throw KBindingException("Property $name not delegated to an instance of KBindableVal.") }
+    kbvalOrNull ?: throw KBindingException("Property $name not delegated to an instance of KBindableVal.")
 
 fun <T> KBindableVal<T>.getOrNull() =
     ::value.getOrNull()
