@@ -69,18 +69,16 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
         inline fun <T> retrofit(
             crossinline get: () -> T,
             crossinline attachListener: (onChange: () -> Unit) -> Unit): KBindableVal<T> =
-            object : KBindableValImpl<T>() {
-                override val liveData = BoxedMutableLiveData<T>()
+                object : KBindableVarImpl<T>() {
+                    // update only triggers if get() doesn't throw an exception. This way you can safely use
+                    // lateinit or nullable variables (with !!) as the source.
+                    private val update: () -> Unit = { runCatching{ value = get() } }
 
-                // update only triggers if get() doesn't throw an exception. This way you can safely use
-                // lateinit or nullable variables (with !!) as the source.
-                private val update: () -> Unit = { runCatching{ liveData.value = Box(get()) } }
-
-                init {
-                    update()
-                    attachListener(update)
+                    init {
+                        update()
+                        attachListener(update)
+                    }
                 }
-            }
 
         inline fun <T> retrofit(
             property: KProperty0<T>,
