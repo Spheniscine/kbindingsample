@@ -30,7 +30,7 @@ interface KBindableVar<T> : KBindableVal<T> {
          * Retrofits a mutable value with a change listener into a KBindableVar. This is typically required for
          * two-way binding.
          *
-         * Not to be confused with the Retrofit library; "retrofit" is used in its dictionary sense.
+         * Not to be confused with the Retrofit framework; "retrofit" is used in its dictionary sense.
          */
         inline fun <T> retrofit(
             crossinline get: () -> T,
