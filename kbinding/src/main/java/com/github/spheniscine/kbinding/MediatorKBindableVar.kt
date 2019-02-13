@@ -9,8 +9,10 @@ interface MediatorKBindableVar<T> : KBindableVar<T> {
 
     // attempts to grab the KBindables from the property reference. Will throw an exception
     // if the property isn't delegated to a KBindable
-    fun <S> addSource(source: KProperty0<S>, onChanged: (S) -> Unit)
-    fun <S> removeSource(toRemote: KProperty0<S>)
+    fun <S> addSource(source: KProperty0<S>, onChanged: (S) -> Unit) =
+        addSource(source.kbval, onChanged)
+    fun <S> removeSource(toRemote: KProperty0<S>) =
+        removeSource(toRemote.kbval)
 
     companion object {
         /** pseudo-constructor factory method */
@@ -46,11 +48,5 @@ abstract class MediatorKBindableVarImpl<T> : MediatorKBindableVar<T>, KBindableV
 
     override fun <S> removeSource(toRemote: KBindableVal<S>) =
             liveData.removeSource(toRemote.liveData)
-
-    override fun <S> addSource(source: KProperty0<S>, onChanged: (S) -> Unit) =
-            addSource(source.kbval, onChanged)
-
-    override fun <S> removeSource(toRemote: KProperty0<S>) =
-            removeSource(toRemote.kbval)
 }
 
