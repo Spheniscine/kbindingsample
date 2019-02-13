@@ -84,7 +84,7 @@ val <T> KProperty0<T>.kbval get() =
 
 fun <T> KBindableVal<T>.getOrNull() =
     ::value.getOrNull()
-fun <R, T:R> KBindableVal<T>.getOrElse(onFailure: (Throwable) -> R)=
+inline fun <R, T:R> KBindableVal<T>.getOrElse(onFailure: (Throwable) -> R) =
     ::value.getOrElse(onFailure)
 fun <R, T:R> KBindableVal<T>.getOrDefault(default: R) =
     ::value.getOrDefault(default)
