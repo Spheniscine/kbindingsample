@@ -51,7 +51,9 @@ fun <T> KProperty0<T>.kbstring() = kbval.toStringKBVal()
 /**
  * For two-way conversion; both the transform and its inverse must be defined. See [KBindableVar.convert]
  */
-fun <A, B> KMutableProperty0<A>.kbconvert(transform: (A) -> B, inverse: (B) -> A) =
+inline fun <A, B> KMutableProperty0<A>.kbconvert(
+    noinline transform: (A) -> B, crossinline inverse: (B) -> A
+) =
     kbvar.convert(transform, inverse)
 
 /**
