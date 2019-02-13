@@ -9,8 +9,7 @@ class TwoWayBindingExampleViewModel : BaseViewModel() {
     var internationalNumber by KBindableVar("")
 
     private var e164Number by
-        ::internationalNumber.kbmap { "+$it" }
-            .withSetter { internationalNumber = it.removePrefix("+") }
+        ::internationalNumber.kbconvert({ "+$it" }, { it.removePrefix("+") })
 
     val phoneDownEnabled by
         setOf(::countryIso, ::nationalNumber).kbmerge {

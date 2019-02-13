@@ -65,3 +65,10 @@ val <T> KMutableProperty0<T>.kbvar get() =
  * a KBindableVar.
  */
 object LATEINIT
+
+/**
+ * Converts a KBindableVar into an interdependent KBindableVar of a new type or format. Both a transform lambda and
+ * its inverse must be provided.
+ */
+fun <A, B> KBindableVar<A>.convert(transform: (A) -> B, inverse: (B) -> A) =
+    map(transform).withSetter { value = inverse(it) }

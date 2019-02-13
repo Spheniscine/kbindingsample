@@ -26,20 +26,6 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
 
     val initialized get() = liveData.value != null
 
-    /**
-     * The equivalent of Transformations.map for liveData, this takes any KBindableVal and
-     * returns a new KBindableVal whose value depends on the original's value, and
-     * modified by [transform]
-     */
-    fun <N> map(transform: (T) -> N): KBindableVal<N> =
-        KBindableVal.wrapBoxed(
-            Transformations.map(this.liveData) {
-                Box(transform(value))
-            }.apply { kick() }
-        )
-
-    fun toStringVal() = map { it.toString() }
-
     companion object {
         /**
          * Wraps an arbitrary LiveData to be usable as a delegate. Note however, that the
@@ -102,6 +88,20 @@ fun <R, T:R> KBindableVal<T>.getOrElse(onFailure: (Throwable) -> R)=
     ::value.getOrElse(onFailure)
 fun <R, T:R> KBindableVal<T>.getOrDefault(default: R) =
     ::value.getOrDefault(default)
+
+/**
+ * The equivalent of Transformations.map for liveData, this takes any KBindableVal and
+ * returns a new KBindableVal whose value depends on the original's value, and
+ * modified by [transform]
+ */
+fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> =
+    KBindableVal.wrapBoxed(
+        Transformations.map(this.liveData) {
+            Box(transform(value))
+        }.apply { kick() }
+    )
+
+fun <T> KBindableVal<T>.toStringKBVal() = map { it.toString() }
 
 /**
  * Adds a setter to a KBindableVal, so that you can "upgrade" the result of e.g. [KBindableVal.map]

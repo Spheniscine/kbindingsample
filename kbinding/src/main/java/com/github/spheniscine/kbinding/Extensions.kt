@@ -3,9 +3,7 @@ package com.github.spheniscine.kbinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
-import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KMutableProperty0
-import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.isAccessible
 
@@ -43,12 +41,18 @@ val <T> KProperty0<T>.delegate : Any? get() {
  * Alternatively, you can have the viewModel delegate one property to another, e.g.
  * val priceText: String by ::price.kbmap { "Price: $it" }
  */
-fun <T, N> KProperty0<T>.kbmap(transform: (T) -> N) = kbval.map(transform)
+fun <A, B> KProperty0<A>.kbmap(transform: (A) -> B) = kbval.map(transform)
 
 /**
  * Simple mapping from an arbitrary observed value to a string.
  */
-fun <T> KProperty0<T>.kbstring() = kbval.map { it.toString() }
+fun <T> KProperty0<T>.kbstring() = kbval.toStringKBVal()
+
+/**
+ * For two-way conversion; both the transform and its inverse must be defined. See [KBindableVar.convert]
+ */
+fun <A, B> KMutableProperty0<A>.kbconvert(transform: (A) -> B, inverse: (B) -> A) =
+    kbvar.convert(transform, inverse)
 
 /**
  * Similar to [kbmap] with multiple properties. Internally uses [MediatorKBindableVar]
