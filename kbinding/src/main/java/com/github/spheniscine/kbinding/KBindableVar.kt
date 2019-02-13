@@ -70,5 +70,7 @@ object LATEINIT
  * Converts a KBindableVar into an interdependent KBindableVar of a new type or format. Both a transform lambda and
  * its inverse must be provided.
  */
-fun <A, B> KBindableVar<A>.convert(transform: (A) -> B, inverse: (B) -> A) =
+inline fun <A, B> KBindableVar<A>.convert(
+    noinline transform: (A) -> B, crossinline inverse: (B) -> A
+) =
     map(transform).withSetter { value = inverse(it) }
