@@ -1,11 +1,11 @@
-package com.github.spheniscine.kbinding.bindingdefs
+package com.github.spheniscine.kbinding.adapters
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.EditText
+import android.widget.TextView
 import com.github.spheniscine.kbinding.KBindableVar
 
-val EditText.text_kb get() = KBindableVar.adapt(
+val TextView.text_kb get() = KBindableVar.adapt(
     get = { text.toString() },
     set = ::setText,
     attachListener = { update ->

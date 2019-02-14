@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.view.Gravity
-import com.github.spheniscine.kbinding.bindingdefs.text_kb
+import com.github.spheniscine.kbinding.adapters.text_kb
 import org.jetbrains.anko.*
 import org.koin.android.viewmodel.ext.viewModel
 
