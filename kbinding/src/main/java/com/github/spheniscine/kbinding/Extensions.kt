@@ -62,7 +62,7 @@ inline fun <A, B> KMutableProperty0<A>.kbconvert(
  * @param result The function that generates the result. Note that it has no input; it is assumed
  * you can easily access the properties.
  */
-fun <R> Collection<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> {
+fun <R> Iterable<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> {
     val sources = this
     return object : MediatorKBindableVarImpl<R>() {
         init {
