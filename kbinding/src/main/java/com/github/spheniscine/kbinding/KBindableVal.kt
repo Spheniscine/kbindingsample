@@ -42,7 +42,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
          * you do with it
          */
         fun <T> wrapBoxed(liveData: BoxedLiveData<T>): KBindableVal<T> =
-                object : KBindableValImpl<T>() {
+                object : AbstractKBindableVal<T>() {
                     override val liveData: BoxedLiveData<T> = liveData
                 }
 
@@ -53,7 +53,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
             crossinline get: () -> T,
             crossinline attachListener: (onChange: () -> Unit) -> Unit
         ): KBindableVal<T> =
-            object : KBindableVarImpl<T>() {
+            object : AbstractKBindableVar<T>() {
                 // update only triggers if get() doesn't throw an exception. This way you can safely use
                 // lateinit or nullable variables (with !!) as the source.
                 private val update: () -> Unit = { runCatching{ value = get() } }
@@ -71,7 +71,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
     }
 }
 
-abstract class KBindableValImpl<T> : KBindableVal<T>, KBindableImpl<Box<T>, (T) -> Unit>() {
+abstract class AbstractKBindableVal<T> : KBindableVal<T>, AbstractKBindable<Box<T>, (T) -> Unit>() {
 
     override fun makeObserver(func: (T) -> Unit): Observer<Any?> = Observer { func(value) }
 
@@ -100,8 +100,6 @@ fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> =
             Box(transform(value))
         }.apply { kick() }
     )
-
-fun <T> KBindableVal<T>.toStringKBVal() = map { it.toString() }
 
 /**
  * Adds a setter to a KBindableVal, so that you can "upgrade" the result of e.g. [KBindableVal.map]

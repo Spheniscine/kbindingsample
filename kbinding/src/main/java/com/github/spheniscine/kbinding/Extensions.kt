@@ -44,11 +44,6 @@ val <T> KProperty0<T>.delegate : Any? get() {
 fun <A, B> KProperty0<A>.kbmap(transform: (A) -> B) = kbval.map(transform)
 
 /**
- * Simple mapping from an arbitrary observed value to a string.
- */
-fun <T> KProperty0<T>.kbstring() = kbval.toStringKBVal()
-
-/**
  * For two-way conversion; both the transform and its inverse must be defined. See [KBindableVar.convert]
  */
 inline fun <A, B> KMutableProperty0<A>.kbconvert(
@@ -64,7 +59,7 @@ inline fun <A, B> KMutableProperty0<A>.kbconvert(
  */
 fun <R> Iterable<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> {
     val sources = this
-    return object : MediatorKBindableVarImpl<R>() {
+    return object : AbstractMediatorKBindableVar<R>() {
         init {
             for (source in sources) {
                 addSource(source) { value = result() }

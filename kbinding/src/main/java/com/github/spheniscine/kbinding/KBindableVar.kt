@@ -14,7 +14,7 @@ interface KBindableVar<T> : KBindableVal<T> {
     companion object {
         /** pseudo-constructor factory method */
         operator fun <T> invoke(initialValue: T) : KBindableVar<T> =
-            object: KBindableVarImpl<T>() {
+            object: AbstractKBindableVar<T>() {
                 init { value = initialValue }
             }
 
@@ -23,7 +23,7 @@ interface KBindableVar<T> : KBindableVal<T> {
          * Like native Kotlin lateinit variables, be careful when you access this kind of variable.
          */
         operator fun <T> invoke(lateInitMarker: LATEINIT) : KBindableVar<T> =
-            object: KBindableVarImpl<T>() {}
+            object: AbstractKBindableVar<T>() {}
 
 
         /**
@@ -46,7 +46,7 @@ interface KBindableVar<T> : KBindableVal<T> {
 
 
 
-abstract class KBindableVarImpl<T> : KBindableVar<T>, KBindableValImpl<T>() {
+abstract class AbstractKBindableVar<T> : KBindableVar<T>, AbstractKBindableVal<T>() {
     override val liveData = BoxedMutableLiveData<T>()
 
     override var value: T get() = super.value

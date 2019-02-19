@@ -17,13 +17,13 @@ interface MediatorKBindableVar<T> : KBindableVar<T> {
     companion object {
         /** pseudo-constructor factory method */
         operator fun <T> invoke(initialValue: T) : MediatorKBindableVar<T> =
-            object: MediatorKBindableVarImpl<T>() {
+            object: AbstractMediatorKBindableVar<T>() {
                 init { value = initialValue }
             }
 
         /** alternative factory method that leaves the KBindableVar uninitialized */
         operator fun <T> invoke(lateInitMarker: LATEINIT) : MediatorKBindableVar<T> =
-            object: MediatorKBindableVarImpl<T>() {}
+            object: AbstractMediatorKBindableVar<T>() {}
     }
 }
 
@@ -38,7 +38,7 @@ fun <T> MediatorKBindableVar<T>.addSources(vararg sources: KProperty0<*>, onChan
     }
 }
 
-abstract class MediatorKBindableVarImpl<T> : MediatorKBindableVar<T>, KBindableVarImpl<T>() {
+abstract class AbstractMediatorKBindableVar<T> : MediatorKBindableVar<T>, AbstractKBindableVar<T>() {
     override val liveData = BoxedMediatorLiveData<T>()
 
     override fun <S> addSource(source: KBindableVal<S>, onChanged: (S) -> Unit) =
