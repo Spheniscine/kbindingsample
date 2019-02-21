@@ -12,7 +12,7 @@ import androidx.lifecycle.LiveData
  */
 open class ControllableLifecycleOwner(initialState: Lifecycle.State = Lifecycle.State.RESUMED)
     : LifecycleOwner {
-    open val lifecycle = LifecycleRegistry(this)
+    val lifecycle = LifecycleRegistry(this)
     override fun getLifecycle(): Lifecycle = lifecycle
 
     var state get() = lifecycle.currentState
@@ -22,7 +22,7 @@ open class ControllableLifecycleOwner(initialState: Lifecycle.State = Lifecycle.
         state = initialState
     }
 
-    open fun destroy() {
+    fun destroy() {
         state = Lifecycle.State.DESTROYED
     }
 }
