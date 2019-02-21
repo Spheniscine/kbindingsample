@@ -1,5 +1,6 @@
 package com.github.spheniscine.kbinding
 
+import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty0
@@ -47,6 +48,8 @@ interface KBindingClient : LifecycleOwner {
      *
      * Most handy if you're using Anko Layouts, as the view name can be omitted if declared within
      * the DSL.
+     *
+     * Unfortunately this can't be an infix function because of ambiguity e.g. with [TextView.setText]
      */
     fun <T> bind(viewFunc: (T) -> Unit, bindable: KProperty0<T>) = bindable sets viewFunc
     fun <T> bind(viewProp: KMutableProperty0<in T>, bindable: KProperty0<T>) = bindable sets viewProp

@@ -94,12 +94,33 @@ fun <R, T:R> KBindableVal<T>.getOrDefault(default: R) =
  * returns a new KBindableVal whose value depends on the original's value, and
  * modified by [transform]
  */
-fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> =
-    KBindableVal.wrapBoxed(
-        Transformations.map(this.liveData) {
-            Box(transform(value))
-        }.apply { kick() }
-    )
+fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> {
+    val source = this
+    return object : AbstractMediatorKBindableVar<B>() {
+        init {
+            addSource(source) { value = transform(it) }
+            liveData.kick()
+        }
+    }
+}
+
+/**
+ * Similar to [map] with multiple properties. Internally uses [MediatorKBindableVar]
+ * @receiver A set of KBindableVals that the merged property depends on
+ * @param result The function that generates the result. Note that it has no input; it is assumed
+ * you can easily access the properties.
+ */
+fun <R> Iterable<KBindableVal<*>>.merge(result: () -> R): KBindableVal<R> {
+    val sources = this.distinct()
+    return object : AbstractMediatorKBindableVar<R>() {
+        init {
+            for (source in sources) {
+                addSource(source) { value = result() }
+            }
+            liveData.kick()
+        }
+    }
+}
 
 /**
  * Adds a setter to a KBindableVal, so that you can "upgrade" the result of e.g. [KBindableVal.map]

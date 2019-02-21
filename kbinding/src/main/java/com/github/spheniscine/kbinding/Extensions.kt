@@ -7,6 +7,7 @@ import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.isAccessible
 
+
 /**
  * convenience functions for Kotlin properties - these are really handy for any use-case that makes
  * heavy use of lateinits, delegates, and overrided getters/setters, not just KBinding
@@ -51,23 +52,14 @@ inline fun <A, B> KMutableProperty0<A>.kbconvert(
 ) =
     kbvar.convert(transform, inverse)
 
+
 /**
  * Similar to [kbmap] with multiple properties. Internally uses [MediatorKBindableVar]
  * @receiver A set of properties (must be delegated by KBindables) that the merged property depends on
  * @param result The function that generates the result. Note that it has no input; it is assumed
  * you can easily access the properties.
  */
-fun <R> Iterable<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> {
-    val sources = this
-    return object : AbstractMediatorKBindableVar<R>() {
-        init {
-            for (source in sources) {
-                addSource(source) { value = result() }
-            }
-            liveData.kick()
-        }
-    }
-}
+fun <R> Iterable<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> = map { it.kbval }.merge(result)
 
 /**
  * Easily convert a KBindableVal and KBindableVar to a property or a mutable property object
