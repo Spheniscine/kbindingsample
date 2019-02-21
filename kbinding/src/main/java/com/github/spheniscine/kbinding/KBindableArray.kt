@@ -8,6 +8,13 @@ interface KBindableValArray<T>: List<T> {
     fun <R> merge(result: (List<T>) -> R): KBindableVal<R> = kbvals.merge { result(this) }
 
     override val size get() = kbvals.size
+
+    companion object {
+        operator fun <T> invoke(kbvals: List<KBindableVal<T>>): KBindableValArray<T> =
+            object : AbstractKBindableValArray<T>() {
+                override val kbvals = kbvals
+            }
+    }
 }
 
 abstract class AbstractKBindableValArray<T>: KBindableValArray<T>, AbstractList<T>()
