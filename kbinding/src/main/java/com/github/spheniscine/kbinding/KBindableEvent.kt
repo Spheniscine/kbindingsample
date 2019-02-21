@@ -15,12 +15,12 @@ import androidx.lifecycle.Observer
 
 interface KBindableEvent<B: Any, F: Function<Unit>> : KBindable<B, F>
 
-abstract class KBindableEventTraits<B: Any, F: Function<Unit>> : KBindableEvent<B, F>, KBindableImpl<B, F>() {
+abstract class AbstractKBindableEvent<B: Any, F: Function<Unit>> : KBindableEvent<B, F>, AbstractKBindable<B, F>() {
     override val liveData = MutableLiveData<B?>()
 }
 
 open class KBindableEvent0 :
-    KBindableEventTraits<Unit, () -> Unit>() {
+    AbstractKBindableEvent<Unit, () -> Unit>() {
     override val liveData = MutableLiveData<Unit?>()
 
     open operator fun invoke() {
@@ -36,7 +36,7 @@ open class KBindableEvent0 :
 }
 
 open class KBindableEvent1<T> :
-    KBindableEventTraits<Box<T>, (T) -> Unit>() {
+    AbstractKBindableEvent<Box<T>, (T) -> Unit>() {
     override val liveData = MutableLiveData<Box<T>?>()
 
     open operator fun invoke(arg: T) {
@@ -52,7 +52,7 @@ open class KBindableEvent1<T> :
 }
 
 open class KBindableEvent2<A, B> :
-    KBindableEventTraits<Pair<A, B>, (A, B) -> Unit>() {
+    AbstractKBindableEvent<Pair<A, B>, (A, B) -> Unit>() {
     override val liveData = MutableLiveData<Pair<A, B>?>()
 
     open operator fun invoke(a: A, b: B) {
@@ -68,7 +68,7 @@ open class KBindableEvent2<A, B> :
 }
 
 open class KBindableEvent3<A, B, C> :
-    KBindableEventTraits<Triple<A, B, C>, (A, B, C) -> Unit>() {
+    AbstractKBindableEvent<Triple<A, B, C>, (A, B, C) -> Unit>() {
     override val liveData = MutableLiveData<Triple<A, B, C>?>()
 
     open operator fun invoke(a: A, b: B, c: C) {

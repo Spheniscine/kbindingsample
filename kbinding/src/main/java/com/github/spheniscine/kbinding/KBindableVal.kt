@@ -3,7 +3,6 @@ package com.github.spheniscine.kbinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
-import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -27,20 +26,6 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
 
     val initialized get() = liveData.value != null
 
-    /**
-     * The equivalent of Transformations.map for liveData, this takes any KBindableVal and
-     * returns a new KBindableVal whose value depends on the original's value, and
-     * modified by [transform]
-     */
-    fun <N> map(transform: (T) -> N): KBindableVal<N> =
-        KBindableVal.wrapBoxed(
-            Transformations.map(this.liveData) {
-                Box(transform(value))
-            }.apply { kick() }
-        )
-
-    fun toStringVal() = map { it.toString() }
-
     companion object {
         /**
          * Wraps an arbitrary LiveData to be usable as a delegate. Note however, that the
@@ -57,13 +42,36 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
          * you do with it
          */
         fun <T> wrapBoxed(liveData: BoxedLiveData<T>): KBindableVal<T> =
-                object : KBindableValImpl<T>() {
+                object : AbstractKBindableVal<T>() {
                     override val liveData: BoxedLiveData<T> = liveData
                 }
+
+        /**
+         * Adapts a value from a non-KBindable API into a KBindableVal, so long as it has a change listener.
+         */
+        inline fun <T> adapt(
+            crossinline get: () -> T,
+            crossinline attachListener: (onChange: () -> Unit) -> Unit
+        ): KBindableVal<T> =
+            object : AbstractKBindableVar<T>() {
+                // update only triggers if get() doesn't throw an exception. This way you can safely use
+                // lateinit or nullable variables (with !!) as the source.
+                private val update: () -> Unit = { runCatching{ value = get() } }
+
+                init {
+                    update()
+                    attachListener(update)
+                }
+            }
+
+        inline fun <T> adapt(
+            property: KProperty0<T>,
+            crossinline attachListener: (onChange: () -> Unit) -> Unit
+        ): KBindableVal<T> = adapt(property.getter, attachListener)
     }
 }
 
-abstract class KBindableValImpl<T> : KBindableVal<T>, KBindableImpl<Box<T>, (T) -> Unit>() {
+abstract class AbstractKBindableVal<T> : KBindableVal<T>, AbstractKBindable<Box<T>, (T) -> Unit>() {
 
     override fun makeObserver(func: (T) -> Unit): Observer<Any?> = Observer { func(value) }
 
@@ -72,15 +80,47 @@ abstract class KBindableValImpl<T> : KBindableVal<T>, KBindableImpl<Box<T>, (T) 
 @Suppress("UNCHECKED_CAST")
 val <T> KProperty0<T>.kbvalOrNull get() = delegate as? KBindableVal<T>
 val <T> KProperty0<T>.kbval get() =
-    try { kbvalOrNull!! }
-    catch(e: Exception) { throw KBindingException("Property $name not delegated to an instance of KBindableVal.") }
+    kbvalOrNull ?: throw KBindingException("Property $name not delegated to an instance of KBindableVal.")
 
 fun <T> KBindableVal<T>.getOrNull() =
     ::value.getOrNull()
-fun <R, T:R> KBindableVal<T>.getOrElse(onFailure: (Throwable) -> R)=
+inline fun <R, T:R> KBindableVal<T>.getOrElse(onFailure: (Throwable) -> R) =
     ::value.getOrElse(onFailure)
 fun <R, T:R> KBindableVal<T>.getOrDefault(default: R) =
     ::value.getOrDefault(default)
+
+/**
+ * The equivalent of Transformations.map for liveData, this takes any KBindableVal and
+ * returns a new KBindableVal whose value depends on the original's value, and
+ * modified by [transform]
+ */
+fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> {
+    val source = this
+    return object : AbstractMediatorKBindableVar<B>() {
+        init {
+            addSource(source) { value = transform(it) }
+            liveData.kick()
+        }
+    }
+}
+
+/**
+ * Similar to [map] with multiple properties. Internally uses [MediatorKBindableVar]
+ * @receiver A set of KBindableVals that the merged property depends on
+ * @param result The function that generates the result. Note that it has no input; it is assumed
+ * you can easily access the properties.
+ */
+fun <R> Iterable<KBindableVal<*>>.merge(result: () -> R): KBindableVal<R> {
+    val sources = this.distinct()
+    return object : AbstractMediatorKBindableVar<R>() {
+        init {
+            for (source in sources) {
+                addSource(source) { value = result() }
+            }
+            liveData.kick()
+        }
+    }
+}
 
 /**
  * Adds a setter to a KBindableVal, so that you can "upgrade" the result of e.g. [KBindableVal.map]

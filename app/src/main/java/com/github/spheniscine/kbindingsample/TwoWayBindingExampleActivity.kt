@@ -1,12 +1,10 @@
 package com.github.spheniscine.kbindingsample
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.view.Gravity
-import androidx.core.view.marginTop
-import com.github.spheniscine.kbinding.bindingdefs.text2way
+import com.github.spheniscine.kbinding.adapters.text_kb
 import org.jetbrains.anko.*
 import org.koin.android.viewmodel.ext.viewModel
 
@@ -26,7 +24,7 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                     topPadding = SPACING
                     gravity = Gravity.CENTER
                     countryCodePicker {
-                        bind(iso2way, vm::countryIso)
+                        bind2(iso_kb, vm::countryIso)
                     }
                     editText {
                         filters += DigitsKeyListener.getInstance()
@@ -35,7 +33,7 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                         hint = "Phone number"
                         maxLines = 1
                         ems = 9
-                        bind(text2way, vm::nationalNumber)
+                        bind2(text_kb, vm::nationalNumber)
                     }
                 }
 
@@ -64,7 +62,7 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                         hint = "Phone number (international)"
                         maxLines = 1
                         ems = 12
-                        bind(text2way, vm::internationalNumber)
+                        bind2(text_kb, vm::internationalNumber)
                     }
                 }
             }

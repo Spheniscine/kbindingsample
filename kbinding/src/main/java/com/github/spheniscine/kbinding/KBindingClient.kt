@@ -1,7 +1,7 @@
 package com.github.spheniscine.kbinding
 
+import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
-import com.github.spheniscine.kbinding.bindingdefs.K2WayBinder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty0
 
@@ -43,30 +43,34 @@ interface KBindingClient : LifecycleOwner {
     infix fun <F: Function<Unit>> KBindableEvent<*, F>.calls(func: F) = observe(func)
 
     /**
-     * Usage:
-     * vm::phoneNumber twoWay tvPhone.text2way
-     *
-     * Where "text2way" is an extension property for EditText that generates a K2WayBinder object.
-     *
-     * More to be defined soon.
-     */
-    infix fun <T> KBindableVar<T>.twoWay(binder: K2WayBinder<T>) =
-        binder.bind(this@KBindingClient, this)
-    infix fun <T> KMutableProperty0<T>.twoWay(binder: K2WayBinder<T>) =
-        binder.bind(this@KBindingClient, kbvar)
-
-    /**
      * binding functions that are in the reverse order of [sets]. Usage example:
      * bind(tvName::setText, vm::name)
      *
      * Most handy if you're using Anko Layouts, as the view name can be omitted if declared within
      * the DSL.
+     *
+     * Unfortunately this can't be an infix function because of ambiguity e.g. with [TextView.setText]
      */
     fun <T> bind(viewFunc: (T) -> Unit, bindable: KProperty0<T>) = bindable sets viewFunc
     fun <T> bind(viewProp: KMutableProperty0<in T>, bindable: KProperty0<T>) = bindable sets viewProp
     fun <T> bind(viewFunc: (T) -> Unit, bindable: KBindableVal<T>) = bindable sets viewFunc
     fun <T> bind(viewProp: KMutableProperty0<in T>, bindable: KBindableVal<T>) = bindable sets viewProp
-    
-    fun <T> bind(view2WayBinder: K2WayBinder<T>, bindable: KMutableProperty0<T>) = bindable twoWay view2WayBinder
-    fun <T> bind(view2WayBinder: K2WayBinder<T>, bindable: KBindableVar<T>) = bindable twoWay view2WayBinder
+
+
+    /**
+     * Does a two-way binding from a view to a data source. Note that order is important; if the two bindables
+     * have different values when this function is called, [dataBindable] will take priority.
+     *
+     * Android and third-party view objects are unlikely to have a KBindableVar (or a property delegated to
+     * KBindableVar) handy to bind with. As such, extension properties need to be defined using [KBindableVar.adapt].
+     * See the bindingdefs package for examples; the plan is to include every Android property useful for
+     * two-way-binding there.
+     */
+    fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KBindableVar<T>) {
+        dataBindable.observe(viewBindable::setIfNot)
+        viewBindable.observe(dataBindable::setIfNot)
+    }
+    fun <T> bind2(viewBindable: KMutableProperty0<T>, dataBindable: KBindableVar<T>) = bind2(viewBindable.kbvar, dataBindable)
+    fun <T> bind2(viewBindable: KBindableVar<T>, dataBindable: KMutableProperty0<T>) = bind2(viewBindable, dataBindable.kbvar)
+    fun <T> bind2(viewBindable: KMutableProperty0<T>, dataBindable: KMutableProperty0<T>) = bind2(viewBindable.kbvar, dataBindable.kbvar)
 }

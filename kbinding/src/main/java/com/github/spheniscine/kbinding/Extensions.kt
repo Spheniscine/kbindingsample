@@ -3,11 +3,10 @@ package com.github.spheniscine.kbinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
-import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KMutableProperty0
-import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.jvm.isAccessible
+
 
 /**
  * convenience functions for Kotlin properties - these are really handy for any use-case that makes
@@ -43,12 +42,16 @@ val <T> KProperty0<T>.delegate : Any? get() {
  * Alternatively, you can have the viewModel delegate one property to another, e.g.
  * val priceText: String by ::price.kbmap { "Price: $it" }
  */
-fun <T, N> KProperty0<T>.kbmap(transform: (T) -> N) = kbval.map(transform)
+fun <A, B> KProperty0<A>.kbmap(transform: (A) -> B) = kbval.map(transform)
 
 /**
- * Simple mapping from an arbitrary observed value to a string.
+ * For two-way conversion; both the transform and its inverse must be defined. See [KBindableVar.convert]
  */
-fun <T> KProperty0<T>.kbstring() = kbval.map { it.toString() }
+inline fun <A, B> KMutableProperty0<A>.kbconvert(
+    noinline transform: (A) -> B, crossinline inverse: (B) -> A
+) =
+    kbvar.convert(transform, inverse)
+
 
 /**
  * Similar to [kbmap] with multiple properties. Internally uses [MediatorKBindableVar]
@@ -56,17 +59,7 @@ fun <T> KProperty0<T>.kbstring() = kbval.map { it.toString() }
  * @param result The function that generates the result. Note that it has no input; it is assumed
  * you can easily access the properties.
  */
-fun <R> Collection<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> {
-    val sources = this
-    return object : MediatorKBindableVarImpl<R>() {
-        init {
-            for (source in sources) {
-                addSource(source) { value = result() }
-            }
-            liveData.kick()
-        }
-    }
-}
+fun <R> Iterable<KProperty0<*>>.kbmerge(result: () -> R): KBindableVal<R> = map { it.kbval }.merge(result)
 
 /**
  * Easily convert a KBindableVal and KBindableVar to a property or a mutable property object

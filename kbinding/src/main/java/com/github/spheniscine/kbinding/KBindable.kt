@@ -28,7 +28,7 @@ interface KBindable<B: Any, F: Function<Unit>> {
     val hasObservers: Boolean
 }
 
-abstract class KBindableImpl<B: Any, F: Function<Unit>>: KBindable<B, F> {
+abstract class AbstractKBindable<B: Any, F: Function<Unit>>: KBindable<B, F> {
     protected abstract fun makeObserver(func: F) : Observer<in B?>
 
     final override fun observe(owner: LifecycleOwner, func: F) {

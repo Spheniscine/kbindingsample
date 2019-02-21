@@ -9,19 +9,21 @@ interface MediatorKBindableVar<T> : KBindableVar<T> {
 
     // attempts to grab the KBindables from the property reference. Will throw an exception
     // if the property isn't delegated to a KBindable
-    fun <S> addSource(source: KProperty0<S>, onChanged: (S) -> Unit)
-    fun <S> removeSource(toRemote: KProperty0<S>)
+    fun <S> addSource(source: KProperty0<S>, onChanged: (S) -> Unit) =
+        addSource(source.kbval, onChanged)
+    fun <S> removeSource(toRemote: KProperty0<S>) =
+        removeSource(toRemote.kbval)
 
     companion object {
         /** pseudo-constructor factory method */
         operator fun <T> invoke(initialValue: T) : MediatorKBindableVar<T> =
-            object: MediatorKBindableVarImpl<T>() {
+            object: AbstractMediatorKBindableVar<T>() {
                 init { value = initialValue }
             }
 
         /** alternative factory method that leaves the KBindableVar uninitialized */
         operator fun <T> invoke(lateInitMarker: LATEINIT) : MediatorKBindableVar<T> =
-            object: MediatorKBindableVarImpl<T>() {}
+            object: AbstractMediatorKBindableVar<T>() {}
     }
 }
 
@@ -36,7 +38,7 @@ fun <T> MediatorKBindableVar<T>.addSources(vararg sources: KProperty0<*>, onChan
     }
 }
 
-abstract class MediatorKBindableVarImpl<T> : MediatorKBindableVar<T>, KBindableVarImpl<T>() {
+abstract class AbstractMediatorKBindableVar<T> : MediatorKBindableVar<T>, AbstractKBindableVar<T>() {
     override val liveData = BoxedMediatorLiveData<T>()
 
     override fun <S> addSource(source: KBindableVal<S>, onChanged: (S) -> Unit) =
@@ -46,11 +48,5 @@ abstract class MediatorKBindableVarImpl<T> : MediatorKBindableVar<T>, KBindableV
 
     override fun <S> removeSource(toRemote: KBindableVal<S>) =
             liveData.removeSource(toRemote.liveData)
-
-    override fun <S> addSource(source: KProperty0<S>, onChanged: (S) -> Unit) =
-            addSource(source.kbval, onChanged)
-
-    override fun <S> removeSource(toRemote: KProperty0<S>) =
-            removeSource(toRemote.kbval)
 }
 
