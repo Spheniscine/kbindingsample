@@ -105,10 +105,10 @@ fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> {
 }
 
 /**
- * Similar to [map] with multiple properties. Internally uses [MediatorKBindableVar]
+ * Similar to [map] with multiple KBindableVals. Internally uses [MediatorKBindableVar]
  * @receiver A set of KBindableVals that the merged property depends on
  * @param result The function that generates the result. Note that it has no input; it is assumed
- * you can easily access the properties.
+ * you can easily access the KBindableVals.
  */
 fun <R> Iterable<KBindableVal<*>>.merge(result: () -> R): KBindableVal<R> {
     val sources = this.distinct()

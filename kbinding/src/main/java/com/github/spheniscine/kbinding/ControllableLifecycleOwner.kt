@@ -10,9 +10,9 @@ import androidx.lifecycle.LiveData
  * activity states than by using [LiveData.observeForever] and [LiveData.removeObserver] as
  * subclasses of LiveData may wrap the observer making the reference useless.
  */
-class ControllableLifecycleOwner(initialState: Lifecycle.State = Lifecycle.State.RESUMED)
+open class ControllableLifecycleOwner(initialState: Lifecycle.State = Lifecycle.State.RESUMED)
     : LifecycleOwner {
-    val lifecycle = LifecycleRegistry(this)
+    open val lifecycle = LifecycleRegistry(this)
     override fun getLifecycle(): Lifecycle = lifecycle
 
     var state get() = lifecycle.currentState
@@ -22,7 +22,7 @@ class ControllableLifecycleOwner(initialState: Lifecycle.State = Lifecycle.State
         state = initialState
     }
 
-    fun destroy() {
+    open fun destroy() {
         state = Lifecycle.State.DESTROYED
     }
 }
