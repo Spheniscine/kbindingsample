@@ -25,7 +25,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
     // Needed to allow Kotlin to use this as a property delegate
     operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
 
-    val initialized get() = liveData.value != null
+    val initialized: Boolean get() = runCatching { value }.isFailure
 
     companion object {
         /**
