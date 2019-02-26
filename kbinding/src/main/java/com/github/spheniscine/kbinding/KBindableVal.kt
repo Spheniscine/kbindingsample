@@ -16,6 +16,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
     override val liveData: BoxedLiveData<T>
 
     val value: T get() {
+        liveData.kick()
         val box = liveData.value
         if(box != null) return box.value
         else throw UninitializedPropertyAccessException()
@@ -99,7 +100,6 @@ fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> {
     return object : AbstractMediatorKBindableVar<B>() {
         init {
             addSource(source) { value = transform(it) }
-            liveData.kick()
         }
     }
 }
@@ -117,7 +117,6 @@ fun <R> Iterable<KBindableVal<*>>.merge(result: () -> R): KBindableVal<R> {
             for (source in sources) {
                 addSource(source) { value = result() }
             }
-            liveData.kick()
         }
     }
 }

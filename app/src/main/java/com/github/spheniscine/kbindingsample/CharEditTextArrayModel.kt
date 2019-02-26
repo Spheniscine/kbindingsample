@@ -22,7 +22,6 @@ class CharEditTextArrayModel(val size: Int) {
         for(i in indices) {
             editTextContents[i] = if(i < it.length) it[i].toString() else ""
         }
-        update(it)
     }
 
 
@@ -33,7 +32,7 @@ class CharEditTextArrayModel(val size: Int) {
     // to be "reverse bound" to the edit texts so that we can tell if they are focused
     val editTextFocused = KBindableVarArray(size) { false }
 
-    private fun update(value: String = this.value) {
+    private fun update() {
         if(!enabled) {
             for(i in indices) editTextEnabled[i] = false
         } else {

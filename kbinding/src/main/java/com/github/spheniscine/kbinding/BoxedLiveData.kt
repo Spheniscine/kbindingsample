@@ -7,7 +7,7 @@ import androidx.lifecycle.Transformations
 
 typealias BoxedLiveData<T> = LiveData<Box<T>?>
 fun <T> LiveData<T>.toBoxed(): BoxedLiveData<T?> =
-    Transformations.map(this) { Box(it) }.apply { kick() }
+    Transformations.map(this) { Box(it) }
 
 typealias BoxedMutableLiveData<T> = MutableLiveData<Box<T>?>
 
