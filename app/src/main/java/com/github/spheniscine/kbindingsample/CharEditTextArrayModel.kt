@@ -19,11 +19,12 @@ class CharEditTextArrayModel(val size: Int) {
     var value: String by editTextContents.merge {
         it.joinToString("")
     }.withSetter {
-        if(value == it) return@withSetter
-        for(i in 0..lastIndex) {
+        for(i in indices) {
             editTextContents[i] = if(i < it.length) it[i].toString() else ""
         }
+        update(it)
     }
+
 
     val editTextEnabled = KBindableVarArray(size) { enabled && it == 0 }
 
@@ -32,7 +33,7 @@ class CharEditTextArrayModel(val size: Int) {
     // to be "reverse bound" to the edit texts so that we can tell if they are focused
     val editTextFocused = KBindableVarArray(size) { false }
 
-    private fun update() {
+    private fun update(value: String = this.value) {
         if(!enabled) {
             for(i in indices) editTextEnabled[i] = false
         } else {
@@ -57,7 +58,8 @@ class CharEditTextArrayModel(val size: Int) {
     }
 }
 
-fun KBindingClient.bindCharEditTextArray(editTexts: List<EditText>, dataProperty: KMutableProperty0<String>) {
+fun KBindingClient.bindCharEditTextArray(editTexts: List<EditText>, value: KMutableProperty0<String>,
+                                         enabled: KMutableProperty0<Boolean>? = null) {
     val model = CharEditTextArrayModel(editTexts.size)
     editTexts.forEachIndexed { index, editText ->
         bind2(editText.text_kb, model.editTextContents.kbvars[index])
@@ -71,6 +73,7 @@ fun KBindingClient.bindCharEditTextArray(editTexts: List<EditText>, dataProperty
             } else false
         }
 
-        bind2(model::value, dataProperty)
+        bind2(model::value, value)
+        enabled?.let { bind(model::enabled, it) }
     }
 }

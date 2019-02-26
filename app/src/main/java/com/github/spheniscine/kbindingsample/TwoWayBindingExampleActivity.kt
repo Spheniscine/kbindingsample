@@ -5,6 +5,7 @@ import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.view.Gravity
 import android.view.View
+import com.github.spheniscine.kbinding.adapters.checked_kb
 import com.github.spheniscine.kbinding.adapters.text_kb
 import org.jetbrains.anko.*
 import org.koin.android.viewmodel.ext.viewModel
@@ -72,6 +73,7 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                 linearLayout {
                     topPadding = SPACING
                     gravity = Gravity.CENTER
+
                     val pinArray = List(6) {
                         editText {
                             inputType = InputType.TYPE_CLASS_NUMBER
@@ -82,10 +84,19 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                             textColor = 0.opaque
                         }
                     }
-                    bindCharEditTextArray(pinArray, vm::pin)
+                    bindCharEditTextArray(pinArray, vm::pin, vm::pinEnabled)
                 }
 
-                textView("⇵") { gravity = Gravity.CENTER }
+                linearLayout {
+                    topPadding = SPACING
+                    gravity = Gravity.CENTER
+
+                    textView("⇵")
+                    view().lparams(width = SPACING, height = 0)
+                    checkBox("Enable input") {
+                        bind2(checked_kb, vm::pinEnabled)
+                    }
+                }
 
                 linearLayout {
                     gravity = Gravity.CENTER
@@ -96,6 +107,7 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                         maxLines = 1
                         ems = 6
                         bind2(text_kb, vm::pin)
+                        bind(::setEnabled, vm::pinEnabled)
                     }
                 }
             }

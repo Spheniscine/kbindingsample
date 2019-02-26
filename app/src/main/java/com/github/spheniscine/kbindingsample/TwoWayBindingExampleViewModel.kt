@@ -28,4 +28,6 @@ class TwoWayBindingExampleViewModel : BaseViewModel() {
 
     var pin by KBindableVar("")
 
+    var pinEnabled by KBindableVar(true)
+
 }
