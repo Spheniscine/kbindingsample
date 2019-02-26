@@ -26,4 +26,6 @@ class TwoWayBindingExampleViewModel : BaseViewModel() {
         countryIso = ni.countryIso
     }
 
+    var pin by KBindableVar("")
+
 }
