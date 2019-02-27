@@ -1,6 +1,7 @@
 package com.github.spheniscine.kbinding
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import kotlin.reflect.KProperty
@@ -16,7 +17,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
     override val liveData: BoxedLiveData<T>
 
     val value: T get() {
-        liveData.kick()
+        if(liveData is MediatorLiveData) liveData.kick()
         val box = liveData.value
         if(box != null) return box.value
         else throw UninitializedPropertyAccessException()
