@@ -11,7 +11,7 @@ val CountryCodePicker.iso_kb: KBindableVar<String> get() = KBindableVar.adapt(
     attachListener = { setOnCountryChangeListener { it() } }
 )
 
-val View.isFocused_kb: KBindableVal<Boolean> get() = KBindableVal.Companion.adapt(
+val View.isFocused_kb: KBindableVal<Boolean> get() = KBindableVal.adapt(
     get = ::isFocused,
     attachListener = { setOnFocusChangeListener { _, _ -> it() }}
 )
