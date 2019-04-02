@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.text.InputType
 import android.text.method.DigitsKeyListener
 import android.view.Gravity
+import android.view.View
+import com.github.spheniscine.kbinding.adapters.checked_kb
 import com.github.spheniscine.kbinding.adapters.text_kb
 import org.jetbrains.anko.*
 import org.koin.android.viewmodel.ext.viewModel
@@ -63,6 +65,49 @@ class TwoWayBindingExampleActivity : BaseActivity() {
                         maxLines = 1
                         ems = 12
                         bind2(text_kb, vm::internationalNumber)
+                    }
+                }
+
+                view().lparams(width = 0, height = SPACING * 2)
+
+                linearLayout {
+                    topPadding = SPACING
+                    gravity = Gravity.CENTER
+
+                    val pinArray = List(6) {
+                        editText {
+                            inputType = InputType.TYPE_CLASS_NUMBER
+                            maxLength = 1
+                            maxLines = 1
+                            ems = 2
+                            textAlignment = View.TEXT_ALIGNMENT_CENTER
+                            textColor = 0.opaque
+                        }
+                    }
+                    bindCharEditTextArray(pinArray, vm::pin, vm::pinEnabled)
+                }
+
+                linearLayout {
+                    topPadding = SPACING
+                    gravity = Gravity.CENTER
+
+                    textView("⇵")
+                    view().lparams(width = SPACING, height = 0)
+                    checkBox("Enable input") {
+                        bind2(checked_kb, vm::pinEnabled)
+                    }
+                }
+
+                linearLayout {
+                    gravity = Gravity.CENTER
+                    topPadding = SPACING
+                    editText {
+                        inputType = InputType.TYPE_CLASS_NUMBER
+                        maxLength = 6
+                        maxLines = 1
+                        ems = 6
+                        bind2(text_kb, vm::pin)
+                        bind(::setEnabled, vm::pinEnabled)
                     }
                 }
             }

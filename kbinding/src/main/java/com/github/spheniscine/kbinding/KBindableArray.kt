@@ -1,7 +1,12 @@
 package com.github.spheniscine.kbinding
 
+import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KProperty0
+
 interface KBindableValArray<T>: List<T> {
     val kbvals : List<KBindableVal<T>>
+
+    val kvals : List<KProperty0<T>> get() = kbvals.map { it.kval }
 
     override fun get(index: Int) : T = kbvals[index].value
 
@@ -21,6 +26,9 @@ abstract class AbstractKBindableValArray<T>: KBindableValArray<T>, AbstractList<
 
 interface KBindableVarArray<T>: KBindableValArray<T> {
     val kbvars : List<KBindableVar<T>>
+
+    val kvars : List<KMutableProperty0<T>> get() = kbvars.map { it.kvar }
+
     override val kbvals: List<KBindableVal<T>> get() = kbvars
 
     operator fun set(index: Int, value: T) { kbvars[index].value = value }

@@ -1,6 +1,7 @@
 package com.github.spheniscine.kbinding
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import kotlin.reflect.KProperty
@@ -16,6 +17,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
     override val liveData: BoxedLiveData<T>
 
     val value: T get() {
+        if(liveData is MediatorLiveData) liveData.kick()
         val box = liveData.value
         if(box != null) return box.value
         else throw UninitializedPropertyAccessException()
@@ -24,7 +26,7 @@ interface KBindableVal<T> : KBindable<Box<T>, (T) -> Unit> {
     // Needed to allow Kotlin to use this as a property delegate
     operator fun getValue(thisRef: Any?, property: KProperty<*>) = value
 
-    val initialized get() = liveData.value != null
+    val initialized: Boolean get() = runCatching { value }.isFailure
 
     companion object {
         /**
@@ -99,7 +101,6 @@ fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> {
     return object : AbstractMediatorKBindableVar<B>() {
         init {
             addSource(source) { value = transform(it) }
-            liveData.kick()
         }
     }
 }
@@ -117,7 +118,6 @@ fun <R> Iterable<KBindableVal<*>>.merge(result: () -> R): KBindableVal<R> {
             for (source in sources) {
                 addSource(source) { value = result() }
             }
-            liveData.kick()
         }
     }
 }
