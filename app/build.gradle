@@ -47,7 +47,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko-appcompat-v7:0.10.4"
 
     // Koin
-    implementation 'org.koin:koin-android-viewmodel:2.0.0-beta-1'
+    implementation 'org.koin:koin-android-viewmodel:2.0.0-rc-2'
     testImplementation 'org.koin:koin-test:2.0.0-beta-1'
 
     // MockK

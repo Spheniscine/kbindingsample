@@ -8,7 +8,7 @@ import android.view.View
 import com.github.spheniscine.kbinding.adapters.checked_kb
 import com.github.spheniscine.kbinding.adapters.text_kb
 import org.jetbrains.anko.*
-import org.koin.android.viewmodel.ext.viewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class TwoWayBindingExampleActivity : BaseActivity() {
 
