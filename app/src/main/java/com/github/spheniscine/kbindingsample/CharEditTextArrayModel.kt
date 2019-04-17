@@ -63,7 +63,7 @@ fun KBindingClient.bindCharEditTextArray(editTexts: List<EditText>, value: KMuta
     editTexts.forEachIndexed { index, editText ->
         bind2(editText.text_kb, model.editTextContents.kbvars[index])
         bind(editText::setEnabled, model.editTextEnabled.kbvals[index])
-        bind(model.editTextFocused.kvars[index], editText.isFocused_kb)
+        bind(model.editTextFocused.getKvar(index), editText.isFocused_kb)
         model.editTextRequestFocus[index] calls { editText.requestFocus() }
 
         editText.setOnKeyListener { _, keyCode, event ->

@@ -5,8 +5,10 @@ import kotlin.reflect.KProperty0
 
 interface KBindableValArray<T>: List<T> {
     val kbvals : List<KBindableVal<T>>
+    fun getKbval(index: Int) = kbvals[index]
 
     val kvals : List<KProperty0<T>> get() = kbvals.map { it.kval }
+    fun getKval(index: Int) = kbvals[index].kval
 
     override fun get(index: Int) : T = kbvals[index].value
 
@@ -26,8 +28,10 @@ abstract class AbstractKBindableValArray<T>: KBindableValArray<T>, AbstractList<
 
 interface KBindableVarArray<T>: KBindableValArray<T> {
     val kbvars : List<KBindableVar<T>>
+    fun getKbvar(index: Int) = kbvars[index]
 
     val kvars : List<KMutableProperty0<T>> get() = kbvars.map { it.kvar }
+    fun getKvar(index: Int) = kbvars[index].kvar
 
     override val kbvals: List<KBindableVal<T>> get() = kbvars
 
