@@ -3,7 +3,6 @@ package com.github.spheniscine.kbinding
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 
@@ -101,6 +100,25 @@ fun <A, B> KBindableVal<A>.map(transform: (A) -> B): KBindableVal<B> {
     return object : AbstractMediatorKBindableVar<B>() {
         init {
             addSource(source) { value = transform(it) }
+        }
+    }
+}
+
+fun <A, B> KBindableVal<A>.switchMap(transform: (A) -> KBindableVal<B>): KBindableVal<B> {
+    val aSource = this
+    return object: AbstractMediatorKBindableVar<B>() {
+        private var bSource: KBindableVal<B>? = null
+
+        init {
+            addSource(aSource) { a ->
+                val newSource = transform(a)
+                if(bSource == newSource) return@addSource
+                bSource?.let { removeSource(it) }
+                bSource = newSource
+                addSource(newSource) { b ->
+                    value = b
+                }
+            }
         }
     }
 }
